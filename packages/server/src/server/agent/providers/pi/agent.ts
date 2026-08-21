@@ -107,6 +107,7 @@ import { PiUsagePoller, type PiUsagePollScheduler } from "./usage-poller.js";
 import { PiFirstTokenTimer, piReplyStep, piSessionMetrics } from "./metrics.js";
 import { type MeasuredStep, measuredTurnMetrics, TurnMeter } from "../turn-metrics.js";
 import { createSessionMetricsReporter } from "../metrics.js";
+import { mapPiTodoWriteToTimelineItem } from "./todo-mapper.js";
 import {
   mapToolDetail,
   parseToolArgs,
@@ -2397,6 +2398,18 @@ export class PiRpcAgentSession implements AgentSession {
       result,
     });
     this.emitToolCallEvent(event.toolCallId, toolCall, status, result, error);
+    if (event.toolName === "todowrite") {
+      const todoItem = mapPiTodoWriteToTimelineItem(toolCall.args, result);
+      if (todoItem) {
+        this.emit({
+          type: "timeline",
+          provider: this.provider,
+          turnId: this.currentTurnIdForEvent(),
+          item: todoItem,
+        });
+      }
+    }
+
     if (images.length === 0) return;
     const turnId = this.currentTurnIdForEvent();
     this.emitAsync(() => this.renderToolResultImages(images, turnId));

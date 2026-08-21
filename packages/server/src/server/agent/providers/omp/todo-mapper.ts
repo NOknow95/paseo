@@ -39,16 +39,27 @@ function mapOmpTodoItems(items: readonly OmpTodoItem[]): AgentTimelineItem | nul
   }
   return {
     type: "todo",
-    items: items
-      .filter((item) => item.status !== "abandoned")
-      .map((item) => ({
-        text:
-          item.status === "blocked"
-            ? `${item.content} (${item.blocker ? `blocked: ${item.blocker}` : "blocked"})`
-            : item.content,
-        status: normalizeOmpTodoStatus(item.status),
-        completed: item.status === "completed",
-      })),
+    items: items.flatMap((item, index) => {
+      if (item.status === "abandoned") {
+        return [];
+      }
+      return [
+        {
+          // COMPAT(ompTodoStableId): added in v0.5.2, remove after 2027-08-25.
+          // Stable per-position id lets the app diff successive snapshots as
+          // updates instead of treating every re-list as new tasks. Index the
+          // source list, so dropping abandoned items doesn't shift the ids of
+          // the survivors (matches the pi and opencode mappers).
+          id: String(index),
+          text:
+            item.status === "blocked"
+              ? `${item.content} (${item.blocker ? `blocked: ${item.blocker}` : "blocked"})`
+              : item.content,
+          status: normalizeOmpTodoStatus(item.status),
+          completed: item.status === "completed",
+        },
+      ];
+    }),
   };
 }
 

@@ -34,7 +34,6 @@ export const TaskListRow = memo(function TaskListRow({ task }: { task: TodoEntry
     <View style={styles.row} accessibilityLabel={text}>
       <TaskStatusIcon isCompleted={isCompleted} isRunning={isRunning} />
       <Text
-        numberOfLines={1}
         style={[styles.text, isRunning && styles.runningText, isCompleted && styles.completedText]}
       >
         {text}
