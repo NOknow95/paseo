@@ -804,8 +804,8 @@ describe("translateOpenCodeEvent", () => {
         item: {
           type: "todo",
           items: [
-            { text: "Outline", status: "pending", completed: false },
-            { text: "Ship", status: "completed", completed: true },
+            { id: "0", text: "Outline", status: "pending", completed: false },
+            { id: "1", text: "Ship", status: "completed", completed: true },
           ],
         },
       },

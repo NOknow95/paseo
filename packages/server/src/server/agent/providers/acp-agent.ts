@@ -3499,7 +3499,11 @@ function mergeToolSnapshot(
 function mapPlanToTimeline(plan: Plan): AgentTimelineItem {
   return {
     type: "todo",
-    items: plan.entries.map((entry) => ({
+    items: plan.entries.map((entry, index) => ({
+      // COMPAT(acpTodoStableId): added in v0.5.2, remove after 2027-08-25.
+      // Stable per-position id lets the app diff successive snapshots as
+      // updates instead of treating every re-list as new tasks.
+      id: String(index),
       text: entry.content,
       completed: entry.status === "completed",
     })),

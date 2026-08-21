@@ -1014,7 +1014,17 @@ export const useSessionStore = create<SessionStore>()(
             state.acknowledgedClientMessageIds ?? [],
           );
           const changedSubmissions = observedSubmissions !== currentSubmissions;
-          const agentTasks = updateAgentTasks(session.agentTasks, agentId, state.taskSnapshot);
+          // Live task pill stays aligned with the authoritative timeline scan
+          // (applyAgentTimelineResponseState) instead of depending only on the
+          // ephemeral taskSnapshot, which is set only on {type:"todo"} timeline
+          // events. A provider can emit a later tool_call todowrite that updates
+          // the streamed todo_list but not taskSnapshot, leaving the live pill
+          // on a stale wording while the finished session shows the final one.
+          const tasksFromTail =
+            state.tail !== undefined ? latestTasksFromStream(state.tail) : undefined;
+          const taskSnapshot =
+            tasksFromTail && tasksFromTail.length > 0 ? tasksFromTail : state.taskSnapshot;
+          const agentTasks = updateAgentTasks(session.agentTasks, agentId, taskSnapshot);
           const changedTasks = agentTasks !== session.agentTasks;
 
           if (!changedTail && !changedHead && !changedSubmissions && !changedTasks) {

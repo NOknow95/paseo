@@ -39,7 +39,11 @@ function mapOmpTodoItems(items: readonly OmpTodoItem[]): AgentTimelineItem | nul
   }
   return {
     type: "todo",
-    items: items.map((item) => ({
+    items: items.map((item, index) => ({
+      // COMPAT(ompTodoStableId): added in v0.5.2, remove after 2027-08-25.
+      // Stable per-position id lets the app diff successive snapshots as
+      // updates instead of treating every re-list as new tasks.
+      id: String(index),
       text: item.content,
       status: normalizeOmpTodoStatus(item.status),
       completed: item.status === "completed",

@@ -2161,6 +2161,7 @@ describe("OpenCode adapter startTurn error handling", () => {
           type: "todo",
           items: [
             {
+              id: "0",
               text: "Inspect current directory and existing files",
               status: "completed",
               completed: true,

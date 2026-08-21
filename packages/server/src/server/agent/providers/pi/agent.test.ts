@@ -655,6 +655,85 @@ describe("PiRpcAgentSession", () => {
     ]);
   });
 
+  test("emits a todo timeline item for todowrite tool calls", async () => {
+    const { pi, session, events } = await createSession();
+    const fakeSession = pi.latestSession();
+
+    await session.startTurn("plan three tasks");
+    fakeSession.emit({
+      type: "tool_execution_start",
+      toolCallId: "todo-1",
+      toolName: "todowrite",
+      args: {
+        todos: [
+          {
+            content: "task A",
+            status: "in_progress",
+            priority: "high",
+            activeForm: "working on A",
+          },
+          { content: "task B", status: "pending", priority: "medium" },
+        ],
+      },
+    });
+    fakeSession.emit({
+      type: "tool_execution_end",
+      toolCallId: "todo-1",
+      toolName: "todowrite",
+      result: {
+        content: [{ type: "text", text: "Todo list updated: 0/2 tasks" }],
+        details: {
+          todos: [
+            { content: "task A", status: "in_progress", priority: "high" },
+            { content: "task B", status: "pending", priority: "medium" },
+          ],
+          summary: "0/2 tasks",
+        },
+      },
+      isError: false,
+    });
+    fakeSession.finishTurn();
+
+    await events.nextTurnCompletion();
+
+    const items = events.timelineItems();
+    expect(items).toContainEqual({
+      type: "tool_call",
+      callId: "todo-1",
+      name: "todowrite",
+      status: "running",
+      detail: {
+        type: "unknown",
+        input: {
+          todos: [
+            {
+              content: "task A",
+              status: "in_progress",
+              priority: "high",
+              activeForm: "working on A",
+            },
+            { content: "task B", status: "pending", priority: "medium" },
+          ],
+        },
+        output: null,
+      },
+      error: null,
+    });
+    expect(items).toContainEqual({
+      type: "todo",
+      items: [
+        {
+          id: "0",
+          text: "task A",
+          status: "in_progress",
+          completed: false,
+          activeForm: "working on A",
+        },
+        { id: "1", text: "task B", status: "pending", completed: false },
+      ],
+    });
+  });
+
   test("streams Pi task calls as sub-agent cards with lifecycle status", async () => {
     const { pi, session, events } = await createSession();
     const fakeSession = pi.latestSession();
