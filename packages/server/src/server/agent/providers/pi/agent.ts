@@ -85,6 +85,7 @@ import type {
   PiThinkingLevel,
 } from "./rpc-types.js";
 import { PiUsagePoller, type PiUsagePollScheduler } from "./usage-poller.js";
+import { mapPiTodoWriteToTimelineItem } from "./todo-mapper.js";
 import {
   mapToolDetail,
   parseToolArgs,
@@ -2283,6 +2284,18 @@ export class PiRpcAgentSession implements AgentSession {
       result,
     });
     this.emitToolCallEvent(event.toolCallId, toolCall, status, result, error);
+
+    if (event.toolName === "todowrite") {
+      const todoItem = mapPiTodoWriteToTimelineItem(toolCall.args, result);
+      if (todoItem) {
+        this.emit({
+          type: "timeline",
+          provider: this.provider,
+          turnId: this.currentTurnIdForEvent(),
+          item: todoItem,
+        });
+      }
+    }
   }
 
   private emitCompactionTimeline(input: {

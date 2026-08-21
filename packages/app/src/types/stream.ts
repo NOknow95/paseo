@@ -1285,19 +1285,32 @@ function appendTodoList(
   timestamp: Date,
   timelineCursor?: TimelinePosition,
 ): StreamItem[] {
-  const normalizedItems = items.map((item) => ({
-    text: item.text,
-    completed: item.completed,
-    ...(item.id ? { id: item.id } : {}),
-    ...(item.status ? { status: item.status } : {}),
-    ...(item.activeForm ? { activeForm: item.activeForm } : {}),
-  }));
-
   const previousIndex = state.findLastIndex(
     (item) => item.kind === "todo_list" && item.provider === provider,
   );
   const previous = state[previousIndex];
   const previousItems = previous?.kind === "todo_list" ? previous.items : [];
+
+  // Inherit the id at the same position from the previous snapshot whenever an
+  // incoming item lacks one. A provider can double-emit the same task list:
+  // a live { type: "todo" } timeline item carries a stable id, while the
+  // todowrite tool_call synthesized path carries none. Without this alignment
+  // the two are diffed by text and a wording rewrite floods the feed with
+  // spurious "added" entries (id-keyed previous vs text-keyed current).
+  const normalizedItems = items.map((item, index) => {
+    let id = item.id;
+    if (!id) {
+      id = previousItems[index]?.id;
+    }
+    return {
+      text: item.text,
+      completed: item.completed,
+      ...(id ? { id } : {}),
+      ...(item.status ? { status: item.status } : {}),
+      ...(item.activeForm ? { activeForm: item.activeForm } : {}),
+    };
+  });
+
   const activities = deriveTaskActivities(previousItems, normalizedItems);
 
   if (activities.length === 0) {
@@ -1368,7 +1381,16 @@ function deriveTaskActivities(
   const previousByKey = new Map(previous.map((task, index) => [taskKey(task, index), task]));
   const activities: TaskActivity[] = [];
   for (const [index, task] of current.entries()) {
-    const prior = previousByKey.get(taskKey(task, index));
+    let prior = previousByKey.get(taskKey(task, index));
+    // A provider can represent the same list twice (a {type:"todo"} timeline
+    // item carrying a stable id, plus a todowrite tool_call whose extracted
+    // items carry none). Diffing those by key alone rewrites the wording in
+    // one path while the other keeps the id, so the keys diverge and each
+    // re-list floods "added". Fall back to positional alignment so the same
+    // position is treated as the same task even when ids differ.
+    if (!prior) {
+      prior = previous[index];
+    }
     if (!prior) {
       activities.push({ type: "added", task: task.text });
       continue;
