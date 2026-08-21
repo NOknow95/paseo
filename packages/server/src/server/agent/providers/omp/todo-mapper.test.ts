@@ -37,9 +37,9 @@ describe("OMP todo mapper", () => {
     ).toEqual({
       type: "todo",
       items: [
-        { text: "alpha task", status: "in_progress", completed: false },
-        { text: "beta task", status: "pending", completed: false },
-        { text: "gamma task", status: "pending", completed: false },
+        { id: "0", text: "alpha task", status: "in_progress", completed: false },
+        { id: "1", text: "beta task", status: "pending", completed: false },
+        { id: "2", text: "gamma task", status: "pending", completed: false },
       ],
     });
 
@@ -48,9 +48,9 @@ describe("OMP todo mapper", () => {
     ).toEqual({
       type: "todo",
       items: [
-        { text: "alpha task", status: "completed", completed: true },
-        { text: "beta task", status: "in_progress", completed: false },
-        { text: "gamma task", status: "pending", completed: false },
+        { id: "0", text: "alpha task", status: "completed", completed: true },
+        { id: "1", text: "beta task", status: "in_progress", completed: false },
+        { id: "2", text: "gamma task", status: "pending", completed: false },
       ],
     });
   });
@@ -67,8 +67,8 @@ describe("OMP todo mapper", () => {
     ).toEqual({
       type: "todo",
       items: [
-        { text: "beta task", status: "in_progress", completed: false },
-        { text: "gamma task", status: "pending", completed: false },
+        { id: "0", text: "beta task", status: "in_progress", completed: false },
+        { id: "1", text: "gamma task", status: "pending", completed: false },
       ],
     });
   });
@@ -89,9 +89,9 @@ describe("OMP todo mapper", () => {
       {
         type: "todo",
         items: [
-          { text: "alpha task", status: "completed", completed: true },
-          { text: "beta task", status: "in_progress", completed: false },
-          { text: "gamma task", status: "pending", completed: false },
+          { id: "0", text: "alpha task", status: "completed", completed: true },
+          { id: "1", text: "beta task", status: "in_progress", completed: false },
+          { id: "2", text: "gamma task", status: "pending", completed: false },
         ],
       },
     ]);
@@ -116,7 +116,14 @@ describe("OMP todo mapper", () => {
     ];
     const expected = {
       type: "todo",
-      items: [{ text: "Wait for access (blocked: approval)", status: "pending", completed: false }],
+      items: [
+        {
+          id: "0",
+          text: "Wait for access (blocked: approval)",
+          status: "pending",
+          completed: false,
+        },
+      ],
     };
     expect(mapOmpTodoToolResult(parseToolResult({ content: [], details: { phases } }))).toEqual(
       expected,
@@ -139,5 +146,39 @@ describe("OMP todo mapper", () => {
         }),
       ),
     ).toEqual({ type: "todo", items: [] });
+  });
+
+  test("keeps the source-list index as the id when abandoned items are dropped", () => {
+    // The survivor is at source index 1, so filtering the preceding abandoned
+    // item must not renumber it to 0 — otherwise ids drift between snapshots.
+    const phases = [
+      {
+        name: "Tasks",
+        tasks: [
+          { content: "Old approach", status: "abandoned" },
+          { content: "Wait for access", status: "blocked", blocker: "approval" },
+        ],
+      },
+    ];
+    expect(
+      mapOmpTodoState({
+        isStreaming: false,
+        isCompacting: false,
+        sessionId: "s",
+        todoPhases: phases,
+      }),
+    ).toEqual([
+      {
+        type: "todo",
+        items: [
+          {
+            id: "1",
+            text: "Wait for access (blocked: approval)",
+            status: "pending",
+            completed: false,
+          },
+        ],
+      },
+    ]);
   });
 });

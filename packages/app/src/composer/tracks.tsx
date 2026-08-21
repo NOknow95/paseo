@@ -65,6 +65,12 @@ export interface ComposerTrackPillProps {
   children: ReactNode;
   /** Pages a row can open in place of the list (`ComposerTrackRow` `opensPage`). */
   pages?: readonly MenuPageDefinition[];
+  /**
+   * Fixed popover width. By default the panel grows with its content between PANEL_MIN_WIDTH
+   * and PANEL_MAX_WIDTH, which makes it jump as content changes; a tracker that wants a stable
+   * panel passes a constant.
+   */
+  width?: number;
 }
 
 /**
@@ -90,6 +96,7 @@ export function ComposerTrackPill({
   accessibilityLabel,
   children,
   pages,
+  width,
 }: ComposerTrackPillProps): ReactElement {
   return (
     <MenuRoot compactMode="sheet">
@@ -107,6 +114,7 @@ export function ComposerTrackPill({
         minWidth={PANEL_MIN_WIDTH}
         maxWidth={PANEL_MAX_WIDTH}
         maxHeight={PANEL_MAX_HEIGHT}
+        width={width}
         scrollable
         testID={`${testID}-panel`}
       >
