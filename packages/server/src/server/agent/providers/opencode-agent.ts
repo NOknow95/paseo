@@ -2086,7 +2086,7 @@ function mapOpenCodeTodosToTimelineItems(
 ): Extract<AgentTimelineItem, { type: "todo" }> {
   return {
     type: "todo",
-    items: todos.flatMap((todo) => {
+    items: todos.flatMap((todo, index) => {
       const text = readNonEmptyString(todo.content);
       if (!text) {
         return [];
@@ -2094,6 +2094,10 @@ function mapOpenCodeTodosToTimelineItems(
 
       return [
         {
+          // COMPAT(opencodeTodoStableId): added in v0.5.2, remove after 2027-08-25.
+          // Stable per-position id lets the app diff successive snapshots as
+          // updates instead of treating every re-list as new tasks.
+          id: String(index),
           text,
           status: normalizeOpenCodeTodoStatus(todo.status),
           completed: todo.status === "completed",

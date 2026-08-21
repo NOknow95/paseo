@@ -37,9 +37,9 @@ describe("OMP todo mapper", () => {
     ).toEqual({
       type: "todo",
       items: [
-        { text: "alpha task", status: "in_progress", completed: false },
-        { text: "beta task", status: "pending", completed: false },
-        { text: "gamma task", status: "pending", completed: false },
+        { id: "0", text: "alpha task", status: "in_progress", completed: false },
+        { id: "1", text: "beta task", status: "pending", completed: false },
+        { id: "2", text: "gamma task", status: "pending", completed: false },
       ],
     });
 
@@ -48,9 +48,9 @@ describe("OMP todo mapper", () => {
     ).toEqual({
       type: "todo",
       items: [
-        { text: "alpha task", status: "completed", completed: true },
-        { text: "beta task", status: "in_progress", completed: false },
-        { text: "gamma task", status: "pending", completed: false },
+        { id: "0", text: "alpha task", status: "completed", completed: true },
+        { id: "1", text: "beta task", status: "in_progress", completed: false },
+        { id: "2", text: "gamma task", status: "pending", completed: false },
       ],
     });
   });
@@ -67,8 +67,8 @@ describe("OMP todo mapper", () => {
     ).toEqual({
       type: "todo",
       items: [
-        { text: "beta task", status: "in_progress", completed: false },
-        { text: "gamma task", status: "pending", completed: false },
+        { id: "0", text: "beta task", status: "in_progress", completed: false },
+        { id: "1", text: "gamma task", status: "pending", completed: false },
       ],
     });
   });
@@ -89,9 +89,9 @@ describe("OMP todo mapper", () => {
       {
         type: "todo",
         items: [
-          { text: "alpha task", status: "completed", completed: true },
-          { text: "beta task", status: "in_progress", completed: false },
-          { text: "gamma task", status: "pending", completed: false },
+          { id: "0", text: "alpha task", status: "completed", completed: true },
+          { id: "1", text: "beta task", status: "in_progress", completed: false },
+          { id: "2", text: "gamma task", status: "pending", completed: false },
         ],
       },
     ]);
