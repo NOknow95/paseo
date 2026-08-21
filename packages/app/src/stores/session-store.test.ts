@@ -181,6 +181,37 @@ describe("agent task state", () => {
       todo.items,
     );
   });
+
+  it("derives live tasks from the streamed tail so the pill matches the finished session", () => {
+    initializeTestSession();
+    const shortTodo: StreamItem = {
+      kind: "todo_list",
+      id: "todo-short",
+      provider: "pi",
+      timestamp: new Date("2026-08-11T10:00:00.000Z"),
+      activity: { type: "created", count: 1 },
+      items: [{ text: "在 temp/ 下创建示例笔记文档", completed: false }],
+    };
+    const longTodo: StreamItem = {
+      kind: "todo_list",
+      id: "todo-long",
+      provider: "pi",
+      timestamp: new Date("2026-08-11T10:00:01.000Z"),
+      activity: { type: "created", count: 1 },
+      items: [{ text: "在 temp/ 目录创建示例笔记文档，写入标题、正文和日期", completed: false }],
+    };
+
+    // Later todowrite rewrites the wording but only lands in the streamed tail
+    // (tool_call synthesized path), not in the ephemeral taskSnapshot. The live
+    // pill must still pick up the final wording from the tail.
+    useSessionStore.getState().setAgentStreamState("test-server", "agent-1", {
+      tail: [shortTodo, longTodo],
+    });
+
+    expect(useSessionStore.getState().sessions["test-server"]?.agentTasks.get("agent-1")).toEqual(
+      longTodo.items,
+    );
+  });
 });
 
 describe("agent timeline state", () => {

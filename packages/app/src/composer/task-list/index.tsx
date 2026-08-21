@@ -6,6 +6,11 @@ import { ComposerTrackPill, ComposerTrackRow } from "@/composer/tracks";
 import { TaskListRow } from "@/components/task-list-row";
 import type { TodoEntry } from "@/types/stream";
 
+// The todo panel keeps one width whether a task list is short (running session)
+// or long (finished session), so the panel does not jump between the two.
+// Matches the track panel's ceiling; compact layouts still render a full-width sheet.
+const TASK_PANEL_WIDTH = 620;
+
 export const AgentTaskList = memo(function AgentTaskList({
   tasks,
 }: {
@@ -31,6 +36,7 @@ const TaskListCard = memo(function TaskListCard({ tasks }: { tasks: TodoEntry[] 
       testID="agent-task-list-header"
       segments={segments}
       panelTitle={t("message.todo.title")}
+      width={TASK_PANEL_WIDTH}
     >
       {tasks.map((task, index) => (
         <ComposerTrackRow key={task.id ?? `${index}:${task.text}`}>
