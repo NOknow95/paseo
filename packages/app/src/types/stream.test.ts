@@ -1382,6 +1382,102 @@ describe("stream reducer canonical tool calls", () => {
     ]);
   });
 
+  it("does not flood added when a provider rewrites wording via a double-emit (timeline todo + tool_call)", () => {
+    // Pi emits BOTH a {type:"todo"} timeline item (with stable id) and a
+    // todowrite tool_call (without id). Ordering follows Pi: the tool_call is
+    // emitted before the timeline todo. Both must not re-add the whole list
+    // just because the wording changed.
+    const state = hydrateStreamState([
+      {
+        event: canonicalToolTimeline({
+          provider: "pi",
+          callId: "todowrite-1",
+          name: "todowrite",
+          status: "completed",
+          input: {
+            todos: [
+              { content: "搭建项目脚手架", status: "pending" },
+              { content: "编写核心逻辑", status: "pending" },
+              { content: "运行测试验证", status: "pending" },
+            ],
+          },
+        }),
+        timestamp: new Date("2025-01-01T10:50:00Z"),
+      },
+      {
+        event: todoTimeline(
+          [
+            { id: "0", text: "搭建项目脚手架", completed: false, status: "pending" },
+            { id: "1", text: "编写核心逻辑", completed: false, status: "pending" },
+            { id: "2", text: "运行测试验证", completed: false, status: "pending" },
+          ],
+          "pi",
+        ),
+        timestamp: new Date("2025-01-01T10:50:01Z"),
+      },
+      {
+        event: canonicalToolTimeline({
+          provider: "pi",
+          callId: "todowrite-2",
+          name: "todowrite",
+          status: "completed",
+          input: {
+            todos: [
+              {
+                content: "在 temp/ 下创建 demo 项目目录、package.json 和入口文件 index.js",
+                status: "pending",
+              },
+              {
+                content: "在 index.js 中实现一个返回 hello any-questions 字符串的函数并导出",
+                status: "pending",
+              },
+              {
+                content: "用 node 执行 index.js 调用该函数并打印结果，确认输出符合预期",
+                status: "pending",
+              },
+            ],
+          },
+        }),
+        timestamp: new Date("2025-01-01T10:50:02Z"),
+      },
+      {
+        event: todoTimeline(
+          [
+            {
+              id: "0",
+              text: "在 temp/ 下创建 demo 项目目录、package.json 和入口文件 index.js",
+              completed: false,
+              status: "pending",
+            },
+            {
+              id: "1",
+              text: "在 index.js 中实现一个返回 hello any-questions 字符串的函数并导出",
+              completed: false,
+              status: "pending",
+            },
+            {
+              id: "2",
+              text: "用 node 执行 index.js 调用该函数并打印结果，确认输出符合预期",
+              completed: false,
+              status: "pending",
+            },
+          ],
+          "pi",
+        ),
+        timestamp: new Date("2025-01-01T10:50:03Z"),
+      },
+    ]);
+
+    // Rewriting the wording of the same 3 positions must NOT produce a second
+    // batch of "added" entries. There should be exactly one created list.
+    const activities = state
+      .filter((item) => item.kind === "todo_list")
+      .map((item) => (item as Extract<StreamItem, { kind: "todo_list" }>).activity);
+
+    expect(activities.filter((a) => a.type === "created").length).toBe(1);
+    expect(activities.filter((a) => a.type === "added").length).toBe(0);
+  });
+
   it("terminalizes the loading compaction before a completed turn", () => {
     const state = hydrateStreamState([
       {
