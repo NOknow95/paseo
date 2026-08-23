@@ -1380,12 +1380,11 @@ export const ru: TranslationResources = {
         upToDate: "Установлена последняя версия приложения.",
         upToDateWithLastChecked:
           "Установлена последняя версия приложения. Последняя проверка: {{time}}.",
-        pending: "Мы сообщим вам, когда обновление будет готово.",
-        pendingWithLastChecked:
-          "Мы сообщим вам, когда обновление будет готово. Последняя проверка в {{time}}.",
-        pendingWithVersion: "Найдено обновление: {{version}}. Загрузка...",
+        pending: "Доступна новая версия.",
+        pendingWithLastChecked: "Доступна новая версия. Последняя проверка в {{time}}.",
+        pendingWithVersion: "Найдено обновление: {{version}}.",
         pendingWithVersionAndLastChecked:
-          "Найдено обновление: {{version}}. Загрузка... Последняя проверка в {{time}}.",
+          "Найдено обновление: {{version}}. Последняя проверка в {{time}}.",
         availableWithVersion: "Обновление готово: {{version}}",
         availableWithVersionAndLastChecked:
           "Обновление готово: {{version}}. Последняя проверка: {{time}}.",

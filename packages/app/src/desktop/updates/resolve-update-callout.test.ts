@@ -21,10 +21,28 @@ describe("resolveUpdateCalloutDescriptor", () => {
     expect(resolveUpdateCalloutDescriptor(input({ isDesktopApp: false }))).toBeNull();
   });
 
-  it("returns null for idle / checking / up-to-date / pending statuses", () => {
-    for (const status of ["idle", "checking", "up-to-date", "pending"] as const) {
+  it("returns null for idle / checking / up-to-date statuses", () => {
+    for (const status of ["idle", "checking", "up-to-date"] as const) {
       expect(resolveUpdateCalloutDescriptor(input({ status }))).toBeNull();
     }
+  });
+
+  it("builds an update-available descriptor when an update is found but not downloaded", () => {
+    const descriptor = resolveUpdateCalloutDescriptor(input({ status: "pending" }));
+
+    expect(descriptor).not.toBeNull();
+    expect(descriptor?.id).toBe("desktop-update");
+    expect(descriptor?.priority).toBe(200);
+    expect(descriptor?.testID).toBe("update-callout");
+    expect(descriptor?.title).toBe("Update available");
+    expect(descriptor?.variant).toBe("default");
+    expect(descriptor?.showGiftIcon).toBe(true);
+    expect(descriptor?.body).toEqual({ kind: "available", versionLabel: "v1.2.3" });
+    expect(descriptor?.actions).toEqual([
+      { role: "changelog", label: "What's new" },
+      { role: "install", label: "Install & restart", variant: "primary", disabled: false },
+    ]);
+    expect(descriptor?.dismissalKey).toBe("desktop-update:pending:1.2.3");
   });
 
   it("builds an update-available descriptor with changelog + install actions", () => {

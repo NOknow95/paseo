@@ -1384,12 +1384,10 @@ export const en = {
         installing: "Installing app update...",
         upToDate: "App is up to date.",
         upToDateWithLastChecked: "Up to date. Last checked at {{time}}.",
-        pending: "We'll let you know when the update is ready.",
-        pendingWithLastChecked:
-          "We'll let you know when the update is ready. Last checked at {{time}}.",
-        pendingWithVersion: "Update found: {{version}}. Downloading...",
-        pendingWithVersionAndLastChecked:
-          "Update found: {{version}}. Downloading... Last checked at {{time}}.",
+        pending: "A new version is available.",
+        pendingWithLastChecked: "A new version is available. Last checked at {{time}}.",
+        pendingWithVersion: "Update found: {{version}}.",
+        pendingWithVersionAndLastChecked: "Update found: {{version}}. Last checked at {{time}}.",
         availableWithVersion: "Update ready: {{version}}",
         availableWithVersionAndLastChecked: "Update ready: {{version}}. Last checked at {{time}}.",
         available: "An app update is ready to install.",
