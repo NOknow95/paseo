@@ -1366,12 +1366,12 @@ export const ko: TranslationResources = {
         installing: "앱 업데이트 설치 중...",
         upToDate: "앱이 최신 상태입니다.",
         upToDateWithLastChecked: "최신 상태입니다. 마지막 확인: {{time}}.",
-        pending: "업데이트가 준비되면 알려드리겠습니다.",
+        pending: "새 버전을 사용할 수 있습니다.",
         pendingWithLastChecked:
-          "업데이트가 준비되면 알려드리겠습니다. {{time}}에서 마지막으로 확인했습니다.",
-        pendingWithVersion: "업데이트 발견: {{version}}. 다운로드 중...",
+          "새 버전을 사용할 수 있습니다. {{time}}에서 마지막으로 확인했습니다.",
+        pendingWithVersion: "업데이트 발견: {{version}}.",
         pendingWithVersionAndLastChecked:
-          "업데이트 발견: {{version}}. 다운로드 중... {{time}}에서 마지막으로 확인했습니다.",
+          "업데이트 발견: {{version}}. {{time}}에서 마지막으로 확인했습니다.",
         availableWithVersion: "업데이트 준비됨: {{version}}",
         availableWithVersionAndLastChecked:
           "업데이트 준비됨: {{version}}. {{time}}에서 마지막으로 확인했습니다.",

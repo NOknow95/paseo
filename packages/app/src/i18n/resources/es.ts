@@ -1396,12 +1396,12 @@ export const es: TranslationResources = {
         installing: "Instalando actualización de la aplicación...",
         upToDate: "La aplicación está actualizada.",
         upToDateWithLastChecked: "Up to date. Last checked at {{time}}.",
-        pending: "Le avisaremos cuando la actualización esté lista.",
+        pending: "Hay una nueva versión disponible.",
         pendingWithLastChecked:
-          "Le avisaremos cuando la actualización esté lista. Última comprobación a las {{time}}.",
-        pendingWithVersion: "Actualización encontrada: {{version}}. Descargando...",
+          "Hay una nueva versión disponible. Última comprobación a las {{time}}.",
+        pendingWithVersion: "Actualización encontrada: {{version}}.",
         pendingWithVersionAndLastChecked:
-          "Actualización encontrada: {{version}}. Descargando... Última comprobación a las {{time}}.",
+          "Actualización encontrada: {{version}}. Última comprobación a las {{time}}.",
         availableWithVersion: "Actualización lista:{{version}}",
         availableWithVersionAndLastChecked:
           "Actualización lista:{{version}}. Última comprobación a las {{time}}.",

@@ -1396,12 +1396,12 @@ export const fr: TranslationResources = {
         installing: "Installation de la mise à jour de l'application...",
         upToDate: "L'application est à jour.",
         upToDateWithLastChecked: "Up to date. Last checked at {{time}}.",
-        pending: "Nous vous informerons lorsque la mise à jour sera prête.",
+        pending: "Une nouvelle version est disponible.",
         pendingWithLastChecked:
-          "Nous vous informerons lorsque la mise à jour sera prête. Dernière vérification à {{time}}.",
-        pendingWithVersion: "Mise à jour trouvée : {{version}}. Téléchargement...",
+          "Une nouvelle version est disponible. Dernière vérification à {{time}}.",
+        pendingWithVersion: "Mise à jour trouvée : {{version}}.",
         pendingWithVersionAndLastChecked:
-          "Mise à jour trouvée : {{version}}. Téléchargement... Dernière vérification à {{time}}.",
+          "Mise à jour trouvée : {{version}}. Dernière vérification à {{time}}.",
         availableWithVersion: "Mise à jour prête:{{version}}",
         availableWithVersionAndLastChecked:
           "Mise à jour prête:{{version}}. Dernière vérification à {{time}}.",

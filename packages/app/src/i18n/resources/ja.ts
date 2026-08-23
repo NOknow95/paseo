@@ -1374,11 +1374,10 @@ export const ja: TranslationResources = {
         installing: "アプリの更新をインストール中...",
         upToDate: "アプリは最新です。",
         upToDateWithLastChecked: "最新の状態です。最終確認: {{time}}。",
-        pending: "更新の準備ができたらお知らせします。",
-        pendingWithLastChecked: "更新の準備ができたらお知らせします。最終確認: {{time}}。",
-        pendingWithVersion: "更新が見つかりました: {{version}}。ダウンロード中...",
-        pendingWithVersionAndLastChecked:
-          "更新が見つかりました: {{version}}。ダウンロード中... 最終確認: {{time}}。",
+        pending: "新しいバージョンが利用可能です。",
+        pendingWithLastChecked: "新しいバージョンが利用可能です。最終確認: {{time}}。",
+        pendingWithVersion: "更新が見つかりました: {{version}}。",
+        pendingWithVersionAndLastChecked: "更新が見つかりました: {{version}}。最終確認: {{time}}。",
         availableWithVersion: "更新の準備ができました: {{version}}",
         availableWithVersionAndLastChecked:
           "更新の準備ができました: {{version}}。最終確認: {{time}}。",

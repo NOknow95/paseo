@@ -609,15 +609,13 @@ describe("translation resources", () => {
     expect(en.desktop.updates.status.checking).toBe("Checking for app updates...");
     expect(en.desktop.updates.status.installing).toBe("Installing app update...");
     expect(en.desktop.updates.status.upToDate).toBe("App is up to date.");
-    expect(en.desktop.updates.status.pending).toBe("We'll let you know when the update is ready.");
+    expect(en.desktop.updates.status.pending).toBe("A new version is available.");
     expect(en.desktop.updates.status.pendingWithLastChecked).toBe(
-      "We'll let you know when the update is ready. Last checked at {{time}}.",
+      "A new version is available. Last checked at {{time}}.",
     );
-    expect(en.desktop.updates.status.pendingWithVersion).toBe(
-      "Update found: {{version}}. Downloading...",
-    );
+    expect(en.desktop.updates.status.pendingWithVersion).toBe("Update found: {{version}}.");
     expect(en.desktop.updates.status.pendingWithVersionAndLastChecked).toBe(
-      "Update found: {{version}}. Downloading... Last checked at {{time}}.",
+      "Update found: {{version}}. Last checked at {{time}}.",
     );
     expect(en.desktop.updates.status.availableWithVersion).toBe("Update ready: {{version}}");
     expect(en.desktop.updates.status.availableWithVersionAndLastChecked).toBe(
