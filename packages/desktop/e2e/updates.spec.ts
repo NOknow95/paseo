@@ -63,7 +63,7 @@ test.describe("Desktop updates", () => {
     await expectInstallInProgress(page);
   });
 
-  test("manual check reports a found update while it downloads", async ({ page }) => {
+  test("manual check reports a found update that is not downloaded yet", async ({ page }) => {
     await installDesktopRuntime(page, {
       serverId: getServerId(),
       updateAvailable: true,
