@@ -420,7 +420,7 @@ describe("formatStatusText", () => {
         formatVersion,
         formatLastCheckedAt,
       }),
-    ).toBe("Update found: v1.2.3. Downloading... Last checked at time-42.");
+    ).toBe("Update found: v1.2.3. Last checked at time-42.");
   });
 
   it("keeps manual check feedback visible when an update is available", () => {

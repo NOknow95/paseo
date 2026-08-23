@@ -364,9 +364,7 @@ export async function clickCheckForUpdates(page: Page): Promise<void> {
 export async function expectPendingUpdateCheckResult(page: Page, version: string): Promise<void> {
   const normalizedVersion = `v${version.replace(/^v/i, "")}`;
   await expect(
-    page.getByText(
-      new RegExp(`Update found: ${escapeRegex(normalizedVersion)}\\. Downloading\\.\\.\\.`),
-    ),
+    page.getByText(new RegExp(`Update found: ${escapeRegex(normalizedVersion)}\\.`)),
   ).toBeVisible();
   await expect(page.getByText(`Ready to install: ${normalizedVersion}`)).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Update" })).toBeDisabled();
