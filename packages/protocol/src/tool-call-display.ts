@@ -128,6 +128,27 @@ function buildCanonicalDetailDisplay(input: ToolCallDisplayInput): DetailDisplay
   }
 }
 
+function tailPreview(text: string | undefined): string | undefined {
+  if (text === undefined) {
+    return undefined;
+  }
+  // Ignore trailing whitespace/newlines so a stream that pauses right after a
+  // line feed still shows its last content line instead of flashing empty.
+  const trimmed = text.trimEnd();
+  if (trimmed.length === 0) {
+    return undefined;
+  }
+  const lastNewline = trimmed.lastIndexOf("\n");
+  const tail = (lastNewline === -1 ? trimmed : trimmed.slice(lastNewline + 1)).trim();
+  if (tail.length === 0) {
+    return undefined;
+  }
+  if (tail.length > 120) {
+    return `…${tail.slice(-120)}`;
+  }
+  return tail;
+}
+
 function buildUnknownDetailOverride(input: ToolCallDisplayInput): DetailDisplay {
   const lowerName = input.name.trim().toLowerCase();
   if (input.detail.type === "unknown" && lowerName === "task") {
@@ -139,6 +160,7 @@ function buildUnknownDetailOverride(input: ToolCallDisplayInput): DetailDisplay 
   if (input.detail.type === "unknown" && lowerName === "thinking") {
     return {
       displayName: "Thinking",
+      summary: input.status === "running" ? tailPreview(readString(input.detail.input)) : undefined,
     };
   }
   if (lowerName === "terminal") {
