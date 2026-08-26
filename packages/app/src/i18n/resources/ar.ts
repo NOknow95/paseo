@@ -1901,6 +1901,12 @@ export const ar: TranslationResources = {
   renameModal: {
     rename: "إعادة تسمية",
     saving: "جارٍ الحفظ...",
+    generate: "توليد تلقائي",
+    generating: "جارٍ التوليد...",
+    generateFailed: "فشل توليد العنوان",
+    generateRejected: "تعذر إنشاء عنوان من هذه المحادثة.",
+    generateTimeout: "انتهت مهلة انتظار توليد العنوان. قد يظل قيد التشغيل — حاول مرة أخرى.",
+    generateSuccess: "تم توليد العنوان",
   },
   sidebarCallout: {
     dismiss: "رفض",

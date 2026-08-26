@@ -1880,6 +1880,12 @@ export const zhCN: TranslationResources = {
   renameModal: {
     rename: "重命名",
     saving: "正在保存...",
+    generate: "自动生成",
+    generating: "生成中...",
+    generateFailed: "生成标题失败",
+    generateRejected: "无法从这段对话生成标题。",
+    generateTimeout: "等待生成标题超时，可能仍在后台生成，请重试。",
+    generateSuccess: "标题已生成",
   },
   sidebarCallout: {
     dismiss: "关闭",

@@ -1921,6 +1921,13 @@ export const ja: TranslationResources = {
   renameModal: {
     rename: "名前を変更",
     saving: "保存中...",
+    generate: "自動生成",
+    generating: "生成中...",
+    generateFailed: "タイトルの生成に失敗しました",
+    generateRejected: "この会話からタイトルを生成できませんでした。",
+    generateTimeout:
+      "タイトル生成がタイムアウトしました。生成は継続中の可能性があります。もう一度お試しください。",
+    generateSuccess: "タイトルを生成しました",
   },
   sidebarCallout: {
     dismiss: "閉じる",

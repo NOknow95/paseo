@@ -1950,6 +1950,13 @@ export const es: TranslationResources = {
   renameModal: {
     rename: "Rebautizar",
     saving: "Guardando...",
+    generate: "Generar automáticamente",
+    generating: "Generando...",
+    generateFailed: "Error al generar el título",
+    generateRejected: "No se pudo generar un título a partir de esta conversación.",
+    generateTimeout:
+      "Se agotó el tiempo de espera para generar el título. Es posible que siga en curso; inténtalo de nuevo.",
+    generateSuccess: "Título generado",
   },
   sidebarCallout: {
     dismiss: "Despedir",

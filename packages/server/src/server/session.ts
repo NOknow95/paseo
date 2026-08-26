@@ -244,6 +244,7 @@ import {
   type CreatePaseoWorktreeResult,
 } from "./paseo-worktree-service.js";
 import { WorkspaceAutoName } from "./workspace-auto-name.js";
+import { generateAgentTitleFromConversation } from "./agent-title-generator.js";
 import {
   buildAgentSessionConfig as buildWorktreeAgentSessionConfig,
   createPaseoWorktreeWorkflow as createWorktreeWorkflow,
@@ -2571,6 +2572,8 @@ export class Session {
     switch (msg.type) {
       case "agent.detach.request":
         return this.handleDetachAgentRequest(msg.agentId, msg.requestId);
+      case "agent.title.generate.request":
+        return this.handleAgentTitleGenerateRequest(msg);
       default:
         return undefined;
     }
@@ -3697,6 +3700,56 @@ export class Session {
           error: getErrorMessageOr(error, "Failed to set workspace title"),
         },
       });
+    }
+  }
+
+  private async handleAgentTitleGenerateRequest(
+    msg: Extract<SessionInboundMessage, { type: "agent.title.generate.request" }>,
+  ): Promise<void> {
+    const { agentId, requestId } = msg;
+    const respond = (accepted: boolean, title: string | null, error: string | null): void => {
+      this.emit({
+        type: "agent.title.generate.response",
+        payload: { requestId, agentId, accepted, title, error },
+      });
+    };
+
+    this.sessionLogger.info({ agentId, requestId }, "session: agent.title.generate.request");
+
+    try {
+      const agent = await ensureAgentLoaded(agentId, {
+        agentManager: this.agentManager,
+        agentStorage: this.agentStorage,
+        logger: this.sessionLogger,
+      });
+      const timeline = this.agentManager.fetchTimeline(agentId, { limit: 0 });
+      const title = await generateAgentTitleFromConversation({
+        agentManager: this.agentManager,
+        cwd: agent.cwd,
+        timelineRows: timeline.rows,
+        workspaceGitService: this.workspaceGitService,
+        providerSnapshotManager: this.providerSnapshotManager,
+        daemonConfig: this.readStructuredGenerationDaemonConfig(),
+        currentSelection: {
+          provider: agent.provider,
+          model: agent.runtimeInfo?.model ?? agent.config.model ?? null,
+          thinkingOptionId:
+            agent.runtimeInfo?.thinkingOptionId ?? agent.config.thinkingOptionId ?? null,
+        },
+        language: msg.language,
+        logger: this.sessionLogger,
+      });
+      if (!title) {
+        respond(false, null, "No title could be generated from this conversation");
+        return;
+      }
+      respond(true, title, null);
+    } catch (error) {
+      this.sessionLogger.error(
+        { err: error, agentId, requestId },
+        "session: agent.title.generate.request error",
+      );
+      respond(false, null, getErrorMessageOr(error, "Failed to generate agent title"));
     }
   }
 

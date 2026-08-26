@@ -1934,6 +1934,13 @@ export const ru: TranslationResources = {
   renameModal: {
     rename: "Переименовать",
     saving: "Сохранение...",
+    generate: "Сгенерировать",
+    generating: "Генерация...",
+    generateFailed: "Не удалось сгенерировать название",
+    generateRejected: "Не удалось создать название из этого разговора.",
+    generateTimeout:
+      "Истекло время ожидания генерации заголовка. Возможно, она ещё выполняется — попробуйте ещё раз.",
+    generateSuccess: "Название сгенерировано",
   },
   sidebarCallout: {
     dismiss: "Закрыть",

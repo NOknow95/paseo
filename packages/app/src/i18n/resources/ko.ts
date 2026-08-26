@@ -1912,6 +1912,13 @@ export const ko: TranslationResources = {
   renameModal: {
     rename: "이름 변경",
     saving: "저장하는 중...",
+    generate: "자동 생성",
+    generating: "생성 중...",
+    generateFailed: "제목 생성에 실패했습니다",
+    generateRejected: "이 대화에서 제목을 생성할 수 없습니다.",
+    generateTimeout:
+      "제목 생성 대기 시간이 초과되었습니다. 아직 생성 중일 수 있으니 다시 시도해 주세요.",
+    generateSuccess: "제목이 생성되었습니다",
   },
   sidebarCallout: {
     dismiss: "닫기",
