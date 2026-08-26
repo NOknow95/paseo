@@ -1925,6 +1925,13 @@ export const en = {
   renameModal: {
     rename: "Rename",
     saving: "Saving...",
+    generate: "Auto-generate",
+    generating: "Generating...",
+    generateFailed: "Failed to generate title",
+    generateRejected: "Could not generate a title from this conversation.",
+    generateTimeout:
+      "Timed out waiting for the daemon to generate a title. It may still be running — try again.",
+    generateSuccess: "Title generated",
   },
   sidebarCallout: {
     dismiss: "Dismiss",

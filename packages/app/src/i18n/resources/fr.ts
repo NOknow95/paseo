@@ -1955,6 +1955,13 @@ export const fr: TranslationResources = {
   renameModal: {
     rename: "Rebaptiser",
     saving: "Sauvegarde...",
+    generate: "Générer automatiquement",
+    generating: "Génération...",
+    generateFailed: "Échec de la génération du titre",
+    generateRejected: "Impossible de générer un titre à partir de cette conversation.",
+    generateTimeout:
+      "Délai d'attente dépassé pour la génération du titre. Elle est peut-être encore en cours — réessayez.",
+    generateSuccess: "Titre généré",
   },
   sidebarCallout: {
     dismiss: "Rejeter",

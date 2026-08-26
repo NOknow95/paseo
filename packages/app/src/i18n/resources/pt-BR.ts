@@ -1934,6 +1934,13 @@ export const ptBR: TranslationResources = {
   renameModal: {
     rename: "Renomear",
     saving: "Salvando...",
+    generate: "Gerar automaticamente",
+    generating: "Gerando...",
+    generateFailed: "Falha ao gerar o título",
+    generateRejected: "Não foi possível gerar um título a partir desta conversa.",
+    generateTimeout:
+      "Tempo esgotado ao gerar o título. A geração pode ainda estar em andamento — tente novamente.",
+    generateSuccess: "Título gerado",
   },
   sidebarCallout: {
     dismiss: "Dispensar",

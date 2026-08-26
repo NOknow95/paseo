@@ -1119,6 +1119,33 @@ interface PingProbe {
   drivesLivenessFailure: boolean;
 }
 
+const TITLE_GENERATION_TIMEOUT_MS = 30_000;
+
+/**
+ * Thrown when the client gives up waiting for an agent title generation
+ * response. The daemon may still be generating in the background; the result
+ * is discarded by design.
+ */
+export class AgentTitleGenerateTimeoutError extends Error {
+  constructor(timeoutMs: number) {
+    super(
+      `Timed out waiting for the daemon to generate a title (${timeoutMs}ms). The daemon may still be generating in the background.`,
+    );
+    this.name = "AgentTitleGenerateTimeoutError";
+  }
+}
+
+/**
+ * Thrown when the daemon answers a title generation request but could not
+ * produce a title (e.g. empty conversation, generation failed).
+ */
+export class AgentTitleGenerateRejectedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AgentTitleGenerateRejectedError";
+  }
+}
+
 export class DaemonClient {
   private readonly providerSnapshotUpdates = new ProviderSnapshotUpdates({
     active: (message) => this.owned.owns(message),
@@ -2906,6 +2933,38 @@ export class DaemonClient {
     });
     if (!payload.accepted) {
       throw new Error(payload.error ?? "updateAgent rejected");
+    }
+  }
+
+  async generateAgentTitle(
+    agentId: string,
+    options?: { language?: string },
+    requestId?: string,
+  ): Promise<{ title: string | null }> {
+    try {
+      const payload = await this.sendCorrelatedSessionRequest({
+        requestId,
+        message: {
+          type: "agent.title.generate.request",
+          agentId,
+          ...(options?.language ? { language: options.language } : {}),
+        },
+        responseType: "agent.title.generate.response",
+        // LLM generation with provider fallback can take minutes, but the
+        // client abandons after 30s by design and throws a typed timeout
+        // error to the caller. The daemon may still be generating in the
+        // background; that result is discarded (an accepted trade-off).
+        timeout: TITLE_GENERATION_TIMEOUT_MS,
+      });
+      if (!payload.accepted) {
+        throw new AgentTitleGenerateRejectedError(payload.error ?? "generateAgentTitle rejected");
+      }
+      return { title: payload.title };
+    } catch (error) {
+      if (isWaiterTimeoutError(error)) {
+        throw new AgentTitleGenerateTimeoutError(TITLE_GENERATION_TIMEOUT_MS);
+      }
+      throw error;
     }
   }
 
