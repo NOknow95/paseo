@@ -1101,6 +1101,15 @@ export const WorkspaceMetadataUpdateRequestSchema = z.object({
   requestId: z.string(),
 });
 
+export const AgentTitleGenerateRequestSchema = z.object({
+  type: z.literal("agent.title.generate.request"),
+  agentId: z.string(),
+  // Optional BCP-47 locale (e.g. "zh-CN") that the generated title should be
+  // written in; when absent the daemon falls back to English.
+  language: z.string().optional(),
+  requestId: z.string(),
+});
+
 export const WorkspacePinSetRequestSchema = z.object({
   type: z.literal("workspace.pin.set.request"),
   workspaceId: z.string(),
@@ -2322,6 +2331,19 @@ export const WorkspaceMetadataUpdateResponseSchema = z.object({
     metadata: EntityMetadataSchema.nullable(),
     error: z.string().nullable(),
   }),
+});
+
+export const AgentTitleGenerateResponsePayloadSchema = z.object({
+  requestId: z.string(),
+  agentId: z.string(),
+  accepted: z.boolean(),
+  title: z.string().nullable(),
+  error: z.string().nullable(),
+});
+
+export const AgentTitleGenerateResponseSchema = z.object({
+  type: z.literal("agent.title.generate.response"),
+  payload: AgentTitleGenerateResponsePayloadSchema,
 });
 
 export const WorkspacePinSetResponsePayloadSchema = z.object({
@@ -3548,6 +3570,7 @@ export const SessionInboundMessageSchema = z.discriminatedUnion("type", [
   WorkspaceTitleSetRequestSchema,
   AgentMetadataUpdateRequestSchema,
   WorkspaceMetadataUpdateRequestSchema,
+  AgentTitleGenerateRequestSchema,
   WorkspacePinSetRequestSchema,
   WorkspaceBaseBranchSetRequestSchema,
   WorkspaceLabelListRequestSchema,
@@ -3945,6 +3968,8 @@ export const ServerInfoStatusPayloadSchema = z
         terminalCollection: z.boolean().optional(),
         // COMPAT(workspaceBaseBranch): added after v0.11.2, remove gate after 2027-10-14.
         workspaceBaseBranch: z.boolean().optional(),
+        // COMPAT(agentTitleGenerate): added in v0.6.1, remove gate after 2027-09-01.
+        agentTitleGenerate: z.boolean().optional(),
         // COMPAT(workspaceSetupRun): added in v0.8.0, remove gate after 2027-09-02.
         workspaceSetupRun: z.boolean().optional(),
         // COMPAT(workspaceTerminals): added in v0.8.0, remove gate after 2027-09-05.
@@ -7559,6 +7584,7 @@ export const SessionOutboundMessageSchema = z.discriminatedUnion("type", [
   WorkspaceTitleSetResponseSchema,
   AgentMetadataUpdateResponseSchema,
   WorkspaceMetadataUpdateResponseSchema,
+  AgentTitleGenerateResponseSchema,
   WorkspacePinSetResponseSchema,
   WorkspaceBaseBranchSetResponseSchema,
   WorkspaceRecoveryInspectResponseSchema,
@@ -7767,6 +7793,7 @@ export type ProjectRenameResponse = z.infer<typeof ProjectRenameResponseSchema>;
 export type ProjectIconSetResponse = z.infer<typeof ProjectIconSetResponseSchema>;
 export type ProjectRemoveResponse = z.infer<typeof ProjectRemoveResponseSchema>;
 export type WorkspaceTitleSetResponse = z.infer<typeof WorkspaceTitleSetResponseSchema>;
+export type AgentTitleGenerateResponse = z.infer<typeof AgentTitleGenerateResponseSchema>;
 export type WorkspaceTitleSetResponsePayload = z.infer<
   typeof WorkspaceTitleSetResponsePayloadSchema
 >;
@@ -7931,6 +7958,7 @@ export type ProjectRenameRequest = z.infer<typeof ProjectRenameRequestSchema>;
 export type ProjectIconSetRequest = z.infer<typeof ProjectIconSetRequestSchema>;
 export type ProjectRemoveRequest = z.infer<typeof ProjectRemoveRequestSchema>;
 export type WorkspaceTitleSetRequest = z.infer<typeof WorkspaceTitleSetRequestSchema>;
+export type AgentTitleGenerateRequest = z.infer<typeof AgentTitleGenerateRequestSchema>;
 export type WorkspacePinSetRequest = z.infer<typeof WorkspacePinSetRequestSchema>;
 export type AgentMetadataUpdateRequest = z.infer<typeof AgentMetadataUpdateRequestSchema>;
 export type WorkspaceMetadataUpdateRequest = z.infer<typeof WorkspaceMetadataUpdateRequestSchema>;
