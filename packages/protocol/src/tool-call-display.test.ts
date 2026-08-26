@@ -190,4 +190,110 @@ describe("shared tool-call display mapping", () => {
       displayName: "Plan",
     });
   });
+
+  it("shows a tail preview of thinking text while running", () => {
+    const display = buildToolCallDisplayModel({
+      name: "thinking",
+      status: "running",
+      error: null,
+      detail: {
+        type: "unknown",
+        input: "First line\nSecond line\nFinal line",
+        output: null,
+      },
+    });
+
+    expect(display).toEqual({
+      displayName: "Thinking",
+      summary: "Final line",
+    });
+  });
+
+  it("keeps the last line when thinking text ends with a line feed", () => {
+    const display = buildToolCallDisplayModel({
+      name: "thinking",
+      status: "running",
+      error: null,
+      detail: {
+        type: "unknown",
+        input: "First line\nSecond line\n",
+        output: null,
+      },
+    });
+
+    expect(display).toEqual({
+      displayName: "Thinking",
+      summary: "Second line",
+    });
+  });
+
+  it("truncates a long thinking line with a leading ellipsis", () => {
+    const longLine = "x".repeat(200);
+    const display = buildToolCallDisplayModel({
+      name: "thinking",
+      status: "running",
+      error: null,
+      detail: {
+        type: "unknown",
+        input: longLine,
+        output: null,
+      },
+    });
+
+    expect(display).toEqual({
+      displayName: "Thinking",
+      summary: `…${longLine.slice(-120)}`,
+    });
+  });
+
+  it("omits the thinking summary when the tail is blank", () => {
+    const display = buildToolCallDisplayModel({
+      name: "thinking",
+      status: "running",
+      error: null,
+      detail: {
+        type: "unknown",
+        input: "\n\n  ",
+        output: null,
+      },
+    });
+
+    expect(display).toEqual({
+      displayName: "Thinking",
+    });
+  });
+
+  it("omits the thinking summary when input is not a string", () => {
+    const display = buildToolCallDisplayModel({
+      name: "thinking",
+      status: "running",
+      error: null,
+      detail: {
+        type: "unknown",
+        input: null,
+        output: null,
+      },
+    });
+
+    expect(display).toEqual({
+      displayName: "Thinking",
+    });
+  });
+
+  it("omits the thinking summary once the call completes", () => {
+    const display = buildToolCallDisplayModel({
+      name: "thinking",
+      status: "completed",
+      error: null,
+      detail: {
+        type: "unknown",
+        input: "Some thought content",
+        output: null,
+      },
+    });
+
+    expect(display).toEqual({
+      displayName: "Thinking",
+    });
+  });
 });
