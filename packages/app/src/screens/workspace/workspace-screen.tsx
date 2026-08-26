@@ -1776,14 +1776,19 @@ function WorkspaceScreenContent({
   });
 
   const [hoveredCloseTabKey, setHoveredCloseTabKey] = useState<string | null>(null);
-  const { handleRenameTab, renamingTab, handleRenameModalSubmit, handleRenameModalClose } =
-    useWorkspaceTabRename({
-      client,
-      normalizedServerId,
-      queryClient,
-      terminalsData: terminalsQuery.data,
-      terminalsQueryKey,
-    });
+  const {
+    handleRenameTab,
+    renamingTab,
+    handleRenameModalSubmit,
+    handleRenameModalClose,
+    handleRenameModalGenerate,
+  } = useWorkspaceTabRename({
+    client,
+    normalizedServerId,
+    queryClient,
+    terminalsData: terminalsQuery.data,
+    terminalsQueryKey,
+  });
 
   const allTabDescriptorsById = useMemo(() => {
     const map = new Map<string, WorkspaceTabDescriptor>();
@@ -3691,6 +3696,7 @@ function WorkspaceScreenContent({
           renamingTab={isRouteFocused ? renamingTab : null}
           onSubmit={handleRenameModalSubmit}
           onClose={handleRenameModalClose}
+          onGenerate={handleRenameModalGenerate}
         />
       </View>
     </RenderProfile>
