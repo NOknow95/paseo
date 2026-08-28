@@ -31,131 +31,52 @@
 
 <p align="center">Claude Code、Codex、Copilot、OpenCode、Pi のエージェントを、ひとつのインターフェースで。</p>
 
-<p align="center">
-  <img src="https://paseo.sh/hero-mockup.png" alt="Paseo アプリのスクリーンショット" width="100%">
-</p>
+> このブランチは公式の Paseo 製品に以下の拡張を加えたものです。製品の完全な紹介（クイックスタート・CLI・SDK・スキル）は[公式 README](https://github.com/getpaseo/paseo)と [Paseo ドキュメント](https://paseo.sh/docs)を参照してください。
 
-<p align="center">
-  <img src="https://paseo.sh/mobile-mockup.png" alt="Paseo モバイルアプリ" width="100%">
-</p>
+## このブランチの追加機能
 
-> [!NOTE]
-> 私はひとりでメンテナンスしているため、GitHub Issues を毎日確認できるとは限りません。
-> 急ぎの問題や作業がブロックされている場合は、[Discord](https://discord.gg/jz8T2uahpH) から連絡するのが一番早いです。
+### AI によるタブタイトル自動生成
 
----
+エージェントタブの名前をワンクリックで変更できます。リネームモーダルに **Auto-generate（自動生成）** ボタンが追加されました。デーモンがエージェントの会話タイムラインからシードを構築して構造化生成を行い、エージェント自身の provider/model を優先、失敗時は設定済みのフォールバックチェーンに切り替わります。タイムアウトや生成失敗はローカライズされたメッセージで通知されます。`agentTitleGenerate` に対応したデーモン（v0.6.1+）が必要です。
 
-自分のマシンでエージェントを並列実行。スマートフォンからでもデスクからでも、開発を進めてリリースできます。
+### 思考中のライブプレビュー
 
-- **セルフホスト:** エージェントはあなたのマシン上で動作し、完全な開発環境を使用します。自分のツール・設定・スキルをそのまま活用できます。
-- **マルチプロバイダー:** Claude Code、Codex、Copilot、OpenCode、Pi を同一のインターフェースで利用。タスクに合ったモデルを選べます。
-- **音声コントロール:** 音声モードでタスクを口述したり問題を話し合ったりできます。ハンズフリーが必要なときに便利です。
-- **クロスデバイス:** iOS、Android、デスクトップ、Web、CLI に対応。机で作業を始め、スマートフォンで確認し、ターミナルから自動化できます。
-- **プライバシー優先:** Paseo にはテレメトリー・トラッキング・強制ログインは一切ありません。
+エージェントが思考している間、Thinking バッジは静的な "Thinking" のままでなく、モデルが現在考えている内容の末尾をリアルタイムで表示します。ステップが終わると通常のラベルに戻ります。長い推論ステップを待つ間も、何を考えているかが分かります。
 
-## はじめかた
+### タイムライン上の Todo タスク
 
-Paseo はコーディングエージェントを管理するローカルサーバー（デーモン）を起動します。デスクトップアプリ・モバイルアプリ・Web アプリ・CLI などのクライアントがこのデーモンに接続します。
+`todowrite` 呼び出しによる Todo リストがタイムラインに直接表示され、プロバイダーをまたいで位置ごとに安定した ID を持ちます。Todo パネルはタイムラインと同期し、プロバイダーが同じリストを再送しても ID ベースで diff を揃え、タスクテキストは折り返し表示、進行中のタスクはライブのピルで示されます。
 
-### 前提条件
+### オンデマンド更新（デスクトップ）
 
-エージェント CLI をひとつ以上インストールし、認証情報を設定しておく必要があります。
+デスクトップアプリは更新をバックグラウンドで自動ダウンロードしません。新バージョンを検出して通知し、ユーザーが明示的にインストールを実行したときだけダウンロードします（終了時にダウンロード済みの更新があれば適用します）。
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-- [Codex](https://github.com/openai/codex)
-- [GitHub Copilot](https://github.com/features/copilot/cli/)
-- [OpenCode](https://github.com/anomalyco/opencode)
-- [Pi](https://pi.dev)
+## ローカル「Paseo Dev」デスクトップアプリのビルド
 
-### デスクトップアプリ（推奨）
-
-[paseo.sh/download](https://paseo.sh/download) または [GitHub のリリースページ](https://github.com/getpaseo/paseo/releases)からダウンロードしてください。アプリを開くとデーモンが自動的に起動します。追加のインストールは不要です。
-
-スマートフォンから接続するには、Settings 画面に表示される QR コードをスキャンしてください。
-
-### CLI / ヘッドレス
-
-CLI をインストールして Paseo を起動します。
+このブランチは現在のコードをローカル用の **Paseo Dev** デスクトップアプリとしてパッケージでき、公開済みの Paseo.app と並行インストールされます——独立した `appId`（`sh.paseo.desktop.dev`）、製品名と成果物のリネーム、macOS では ad-hoc 署名——そのため正式版を上書きすることはありません。完全な手順は `.agents/skills/release-dev/SKILL.md` にあります。簡易版は以下のとおりです。
 
 ```bash
-npm install -g @getpaseo/cli
-paseo
+# 1. dev ビルド設定を生成（electron-builder.yml を変更したら再実行）
+cd packages/desktop && node scripts/make-dev-config.js
+
+# 2. ビルドが古いという警告が出たら、先に再ビルドしてから手順 1 をやり直す
+npm run build:desktop
+
+# 3. 現在のプラットフォーム向けにビルド
+cd packages/desktop
+npx electron-builder --config electron-builder.dev.yml
+
+# macOS は初回ビルド時に dmgbuild のセットアップが一度必要。SKILL.md 参照
+# （ローカルダウンロードミラーのパスはマシン固有の詳細なのでここには書かない）
+
+# 4. 生成された一時ファイルを削除
+rm -f electron-builder.dev.yml scripts/after-pack.dev.js
 ```
 
-ターミナルに QR コードが表示されます。どのクライアントからでも接続できます。サーバーやリモートマシンでの利用に適しています。
+成果物は `packages/desktop/release/` に出力されます（macOS は dmg/zip、Linux は AppImage/deb/rpm/tar.gz、Windows は nsis/zip）。インストールするかどうかは常にあなたの判断です——ビルド自体が何かをインストールしたり置き換えたりすることはありません。なお、dev アプリは正式版と `~/.paseo`・ポート 6767・更新フィードを共有するため、両方を同時に実行しないでください。
 
-詳しいセットアップと設定については以下を参照してください。
+## 公式リソース
 
-- [ドキュメント](https://paseo.sh/docs)
-- [設定リファレンス](https://paseo.sh/docs/configuration)
-
-## CLI
-
-アプリでできることはすべてターミナルからも実行できます。
-
-```bash
-paseo run --provider claude/opus-4.6 "implement user authentication"
-paseo run --provider codex/gpt-5.4 --worktree feature-x "implement feature X"
-
-paseo ls                           # 実行中のエージェントを一覧表示
-paseo attach abc123                # ライブ出力をストリーミング
-paseo send abc123 "also add tests" # 追加タスクを送信
-
-# リモートデーモンで実行
-paseo --host workstation.local:6767 run "run the full test suite"
-```
-
-詳細は[完全な CLI リファレンス](https://paseo.sh/docs/cli)を参照してください。
-
-## スキル
-
-スキルはエージェントに Paseo を使って他のエージェントをオーケストレーションする方法を教えます。
-
-```bash
-npx skills add getpaseo/paseo
-```
-
-どのエージェントとの会話でも使用できます。
-
-- `/paseo-handoff` — エージェント間で作業を引き継ぎます。私はこれを使って Claude で計画し、Codex に実装を引き継いでいます。
-- `/paseo-advisor` — 単一のエージェントをアドバイザーとして起動し、作業を委任せずにセカンドオピニオンを得ます。
-- `/paseo-committee` — 対照的な2つのエージェントで委員会を構成し、一歩引いた視点で根本原因を分析して計画を作成します。
-
-## 開発
-
-モノレポのパッケージ構成：
-
-- `packages/server`: Paseo デーモン（エージェントプロセスのオーケストレーション、WebSocket API、MCP サーバー）
-- `packages/app`: Expo クライアント（iOS、Android、Web）
-- `packages/cli`: デーモンおよびエージェントワークフロー向け `paseo` CLI
-- `packages/desktop`: Electron デスクトップアプリ
-- `packages/relay`: リモート接続用リレーパッケージ
-- `packages/website`: マーケティングサイトとドキュメント（`paseo.sh`）
-
-よく使うコマンド：
-
-```bash
-# すべてのローカル開発サービスを起動
-npm run dev
-
-# 個別のサービスを起動
-npm run dev:server
-npm run dev:app
-npm run dev:desktop
-npm run dev:website
-
-# サーバースタックをビルド
-npm run build:server
-
-# リポジトリ全体のチェック
-npm run typecheck
-```
-
-## 関連プロジェクト
-
-- [getpaseo/paseo-relay](https://github.com/getpaseo/paseo-relay) — Elixir 製の公式分散リレー
-- [paseo-vscode](https://marketplace.visualstudio.com/items?itemName=hinnes.paseo-vscode) — VS Code 拡張機能
-
-## ライセンス
-
-Apache-2.0
+- [公式 README](https://github.com/getpaseo/paseo) — 製品の完全な紹介・クイックスタート・CLI・SDK・スキル
+- [paseo.sh](https://paseo.sh) — ウェブサイトとドキュメント
+- [Releases](https://github.com/getpaseo/paseo/releases)

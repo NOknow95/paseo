@@ -31,142 +31,52 @@
 
 <p align="center">Claude Code, Codex, Copilot, OpenCode, Pi 에이전트를 위한 하나의 인터페이스</p>
 
-<p align="center">
-  <img src="https://paseo.sh/hero-mockup.png" alt="Paseo app screenshot" width="100%">
-</p>
+> 이 브랜치는 공식 Paseo 제품에 아래의 확장 기능을 더한 것입니다. 제품 전체 소개(빠른 시작, CLI, SDK, 스킬)는 [공식 README](https://github.com/getpaseo/paseo)와 [Paseo 문서](https://paseo.sh/docs)를 참고하세요.
 
-<p align="center">
-  <img src="https://paseo.sh/mobile-mockup.png" alt="Paseo mobile app" width="100%">
-</p>
+## 이 브랜치의 추가 기능
 
-내 컴퓨터에서 에이전트를 병렬로 실행하세요. 데스크톱이나 휴대폰에서 배포하세요.
+### AI 탭 제목 자동 생성
 
-- **셀프 호스팅:** 에이전트는 완전한 개발 환경이 갖춰진 내 컴퓨터에서 실행됩니다. 평소 쓰던 도구, 설정, 스킬을 그대로 쓸 수 있습니다.
-- **여러 제공자 지원:** Claude Code, Codex, Copilot, OpenCode, Pi를 하나의 인터페이스에서 사용할 수 있습니다. 작업마다 알맞은 모델을 고를 수 있습니다.
-- **음성 제어:** 음성 모드에서 작업을 말로 지시하거나 문제를 음성으로 함께 검토할 수 있습니다. 손을 쓰지 않고 작업해야 할 때 유용합니다.
-- **여러 기기 지원:** iOS, Android, 데스크톱, 웹, CLI를 지원합니다. 데스크톱에서 시작해 휴대폰으로 확인하고 터미널에서 자동화할 수 있습니다.
-- **개인정보 보호 우선:** Paseo는 텔레메트리, 추적, 강제 로그인을 사용하지 않습니다.
+에이전트 탭 이름을 클릭 한 번으로 변경할 수 있습니다. 이름 바꾸기 모달에 **자동 생성(Auto-generate)** 버튼이 추가되었습니다. 데몬이 에이전트 대화 타임라인에서 시드를 만들어 구조화 생성하며, 에이전트 자체 provider/model을 우선 사용하고 실패하면 설정된 폴백 체인을 따릅니다. 시간 초과와 생성 실패는 현지화된 메시지로 안내됩니다. `agentTitleGenerate`를 지원하는 데몬(v0.6.1+)이 필요합니다.
 
-## 시작하기
+### 생각 중 라이브 미리 보기
 
-Paseo는 코딩 에이전트를 관리하는 로컬 서버인 데몬을 실행합니다. 데스크톱 앱, 모바일 앱, 웹 앱, CLI 같은 클라이언트가 이 데몬에 연결합니다.
+에이전트가 생각하는 동안 Thinking 배지가 정적인 "Thinking"에 머물지 않고, 모델이 현재 생각하고 있는 내용의 뒷부분을 실시간으로 표시합니다. 해당 단계가 끝나면 일반 라벨로 돌아갑니다. 긴 추론 단계도 맹목적으로 기다리지 않아도 됩니다.
 
-### 준비 사항
+### 타임라인의 Todo 작업
 
-아래 에이전트 CLI 중 하나 이상을 설치하고 인증 정보를 설정해야 합니다.
+`todowrite` 호출로 만들어진 Todo 목록이 타임라인에 바로 표시되며, provider를 넘나들며 위치마다 안정적인 ID를 갖습니다. Todo 패널은 타임라인과 동기화되어, provider가 같은 목록을 다시 보내도 ID 기준으로 diff를 정렬하고, 작업 텍스트는 줄바꿈되며, 진행 중인 작업은 라이브 pill로 표시됩니다.
 
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-- [Codex](https://github.com/openai/codex)
-- [GitHub Copilot](https://github.com/features/copilot/cli/)
-- [OpenCode](https://github.com/anomalyco/opencode)
-- [Pi](https://pi.dev)
+### 요청 시 업데이트(데스크톱)
 
-### 데스크톱 앱(권장)
+데스크톱 앱이 더 이상 업데이트를 백그라운드로 자동 다운로드하지 않습니다. 새 버전을 발견하면 알려 주고, 사용자가 명시적으로 설치를 실행할 때만 다운로드합니다(종료 시 이미 다운로드된 업데이트가 있으면 적용합니다).
 
-[paseo.sh/download](https://paseo.sh/download) 또는 [GitHub 릴리스 페이지](https://github.com/getpaseo/paseo/releases)에서 다운로드하세요. 앱을 열면 데몬이 자동으로 시작됩니다. 별도로 설치할 것은 없습니다.
+## 로컬 "Paseo Dev" 데스크톱 앱 빌드
 
-휴대폰에서 연결하려면 **설정 → 호스트 → 기기 페어링**을 여세요.
-
-### CLI / 헤드리스 환경
-
-CLI를 설치하고 Paseo를 시작하세요.
+이 브랜치는 현재 코드를 로컬용 **Paseo Dev** 데스크톱 앱으로 패키징할 수 있고, 배포된 Paseo.app과 나란히 설치됩니다——별도 `appId`(`sh.paseo.desktop.dev`), 제품명·산출물 이름 변경, macOS에서는 ad-hoc 서명——그래서 정식 앱을 덮어쓰지 않습니다. 전체 절차는 `.agents/skills/release-dev/SKILL.md`에 있습니다. 간단한 버전은 다음과 같습니다.
 
 ```bash
-npm install -g @getpaseo/cli
-paseo
+# 1. dev 빌드 설정 생성(electron-builder.yml을 변경한 뒤에는 다시 실행)
+cd packages/desktop && node scripts/make-dev-config.js
+
+# 2. 스크립트가 번들 오래됨 경고를 띄우면 먼저 다시 빌드한 뒤 1번부터 재실행
+npm run build:desktop
+
+# 3. 현재 플랫폼용으로 빌드
+cd packages/desktop
+npx electron-builder --config electron-builder.dev.yml
+
+# macOS는 첫 빌드 시 dmgbuild 설정을 한 번 필요로 합니다. SKILL.md 참조
+# (로컬 다운로드 미러 경로는 머신별 세부 사항이라 여기에는 적지 않음)
+
+# 4. 생성된 임시 파일 정리
+rm -f electron-builder.dev.yml scripts/after-pack.dev.js
 ```
 
-Paseo가 로컬에서 시작된 뒤 기기 페어링을 위한 종단 간 암호화 릴레이를 켤지 묻습니다. 거절하면 TCP, Tailscale 또는 다른 VPN으로 직접 연결할 수 있습니다. 이 방식은 서버나 원격 머신에서 유용합니다.
+산출물은 `packages/desktop/release/`에 생성됩니다(macOS는 dmg/zip, Linux는 AppImage/deb/rpm/tar.gz, Windows는 nsis/zip). 설치는 항상 사용자 몫입니다——빌드 자체는 아무것도 설치하거나 교체하지 않습니다. 참고로 dev 앱은 정식 앱과 `~/.paseo`, 6767 포트, 업데이트 피드를 공유하므로 동시에 실행하지 마세요.
 
-자세한 설치와 설정은 아래 문서를 참고하세요.
+## 공식 리소스
 
-- [문서](https://paseo.sh/docs)
-- [연결 가이드](https://paseo.sh/docs/connectivity)
-- [설정 레퍼런스](https://paseo.sh/docs/configuration)
-
-### Docker
-
-Docker에서 Paseo 데몬과 셀프 호스팅 웹 UI를 실행하세요:
-
-```bash
-docker run -d --name paseo \
-  -p 6767:6767 \
-  -e PASEO_PASSWORD=change-me \
-  -v "$PWD/paseo-home:/home/paseo" \
-  -v "$PWD:/workspace" \
-  ghcr.io/getpaseo/paseo:latest
-```
-
-컨테이너가 시작되면 `http://localhost:6767`을 여세요. 사용하는 에이전트 CLI를 기본 이미지에 추가한 뒤, 환경 변수나 영구 `/home/paseo` 볼륨으로 인증 정보를 설정하세요. 자세한 내용은 [Docker 문서](docs/docker.md)를 참고하세요.
-
-## CLI
-
-앱에서 할 수 있는 모든 작업은 터미널에서도 할 수 있습니다.
-
-```bash
-paseo run --provider claude/opus-4.6 "implement user authentication"
-paseo run --provider codex/gpt-5.4 --worktree feature-x "implement feature X"
-
-paseo ls                           # 실행 중인 에이전트 목록
-paseo attach abc123                # 실시간 출력 스트리밍
-paseo send abc123 "also add tests" # 후속 작업 전송
-
-# 원격 데몬에서 실행
-paseo --host workstation.local:6767 run "run the full test suite"
-```
-
-자세한 내용은 [전체 CLI 레퍼런스](https://paseo.sh/docs/cli)를 참고하세요.
-
-## 스킬
-
-스킬은 에이전트가 Paseo를 통해 다른 에이전트를 오케스트레이션하는 방법을 알려 줍니다.
-
-```bash
-npx skills add getpaseo/paseo
-```
-
-그런 다음 어떤 에이전트 대화에서든 아래 명령을 사용할 수 있습니다.
-
-- `/paseo-handoff` — 에이전트 간에 작업을 넘깁니다. Claude로 계획을 세운 뒤 Codex에 구현을 넘길 때 이 기능을 씁니다.
-- `/paseo-advisor` — 작업 자체를 넘기지 않고, 에이전트 하나를 조언자로 띄워 두 번째 의견을 받습니다.
-- `/paseo-committee` — 서로 다른 관점의 에이전트 두 개로 위원회를 구성해, 한 발 물러나 근본 원인을 분석하고 계획을 세웁니다.
-
-## 개발
-
-모노레포 패키지 구성은 다음과 같습니다.
-
-- `packages/server`: Paseo 데몬(에이전트 프로세스 오케스트레이션, WebSocket API, MCP 서버 제공)
-- `packages/app`: Expo 클라이언트(iOS, Android, 웹)
-- `packages/cli`: `paseo` CLI(데몬과 에이전트 워크플로)
-- `packages/desktop`: Electron 데스크톱 앱
-- `packages/relay`: 데몬과 클라이언트가 쓰는 릴레이 전송 및 암호화 패키지
-- `packages/website`: 마케팅 사이트 및 문서(`paseo.sh`)
-
-자주 쓰는 명령:
-
-```bash
-# 모든 로컬 개발 서비스 실행
-npm run dev
-
-# 개별 환경 실행
-npm run dev:server
-npm run dev:app
-npm run dev:desktop
-npm run dev:website
-
-# 서버 스택 빌드
-npm run build:server
-
-# 레포 전체 검사 실행
-npm run typecheck
-```
-
-## 관련 프로젝트
-
-- [getpaseo/paseo-relay](https://github.com/getpaseo/paseo-relay) — Elixir로 작성한 공식 분산형 릴레이
-- [paseo-skins](https://github.com/huangguang1999/paseo-skins) — 커뮤니티 테마와 Agent Skill을 제공하고, 코드 수정 없이 쓸 수 있는 데스크톱 테마 로더
-- [paseo-vscode](https://marketplace.visualstudio.com/items?itemName=hinnes.paseo-vscode) — VS Code 확장 프로그램
-
-## 라이선스
-
-Apache-2.0
+- [공식 README](https://github.com/getpaseo/paseo) — 전체 제품 소개, 빠른 시작, CLI, SDK, 스킬
+- [paseo.sh](https://paseo.sh) — 웹사이트 및 문서
+- [Releases](https://github.com/getpaseo/paseo/releases)
