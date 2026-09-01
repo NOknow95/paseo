@@ -2338,6 +2338,7 @@ interface ExpandableBadgeProps {
   onDetailHoverChange?: (hovered: boolean) => void;
   renderDetails?: () => ReactNode;
   isLoading?: boolean;
+  disableShimmer?: boolean;
   isError?: boolean;
   isLastInSequence?: boolean;
   disableOuterSpacing?: boolean;
@@ -2592,6 +2593,7 @@ function computeShimmerMetrics(input: {
   label: string;
   secondaryLabel: string | undefined;
   isLoading: boolean;
+  disableShimmer: boolean;
   labelRowWidth: number;
   labelRowHeight: number;
   labelOffsetX: number;
@@ -2609,11 +2611,11 @@ function computeShimmerMetrics(input: {
     32,
     Math.min(120, input.labelRowWidth > 0 ? input.labelRowWidth * 0.28 : 0),
   );
-  const isWebShimmer = input.isLoading && isWeb;
+  const isWebShimmer = input.isLoading && !input.disableShimmer && isWeb;
   // React Native Web only observes a node when onLayout exists at mount. Keep
   // measuring while idle so a retained badge has dimensions when it starts loading.
   const shouldMeasureWebShimmer = isWeb;
-  const shouldMeasureNativeShimmer = input.isLoading && isNative;
+  const shouldMeasureNativeShimmer = input.isLoading && !input.disableShimmer && isNative;
   const isNativeShimmer =
     shouldMeasureNativeShimmer && input.labelRowWidth > 0 && input.labelRowHeight > 0;
   const webShimmerSpanStartX = input.labelOffsetX;
@@ -2701,6 +2703,7 @@ export const ExpandableBadge = memo(function ExpandableBadge({
   onDetailHoverChange,
   renderDetails,
   isLoading = false,
+  disableShimmer = false,
   isError = false,
   isLastInSequence = false,
   disableOuterSpacing,
@@ -2762,6 +2765,7 @@ export const ExpandableBadge = memo(function ExpandableBadge({
     label,
     secondaryLabel,
     isLoading,
+    disableShimmer,
     labelRowWidth,
     labelRowHeight,
     labelOffsetX,
@@ -3104,6 +3108,11 @@ export const ToolCall = memo(function ToolCall({
       }),
     [toolName, status, error, effectiveDetail, metadata, cwd],
   );
+  // Skip the loading shimmer on a running thinking block. Its summary is the
+  // live tail of the streamed reasoning text, which updates on every reveal
+  // frame; the sweep highlight reads as constant flicker on top of that. Other
+  // tools keep the shimmer as their loading affordance.
+  const isThinking = presentation.displayName === "Thinking";
   const handleOpenFile = useMemo(() => {
     const openFilePath = presentation.openFilePath;
     if (!openFilePath || !onOpenFilePath) {
@@ -3208,6 +3217,7 @@ export const ToolCall = memo(function ToolCall({
       onOpenFile={handleOpenFile}
       renderDetails={presentation.canOpenDetails && shouldRenderInline ? renderDetails : undefined}
       isLoading={status === "running" || status === "executing"}
+      disableShimmer={isThinking}
       isError={status === "failed"}
       isLastInSequence={isLastInSequence}
       disableOuterSpacing={disableOuterSpacing}
