@@ -1,14 +1,9 @@
 import { useCallback, useState } from "react";
 import { type QueryClient } from "@tanstack/react-query";
-import {
-  AgentTitleGenerateRejectedError,
-  AgentTitleGenerateTimeoutError,
-  type DaemonClient,
-} from "@getpaseo/client/internal/daemon-client";
+import type { DaemonClient } from "@getpaseo/client/internal/daemon-client";
 import type { ListTerminalsResponse } from "@getpaseo/protocol/messages";
 import { useTranslation } from "react-i18next";
 import { AdaptiveRenameModal } from "@/components/rename-modal";
-import { useToast } from "@/contexts/toast-context";
 import { useSessionStore } from "@/stores/session-store";
 import type { WorkspaceTabDescriptor } from "@/screens/workspace/workspace-tabs-types";
 
@@ -31,19 +26,14 @@ interface UseWorkspaceTabRenameResult {
   handleRenameTab: (tab: WorkspaceTabDescriptor) => void;
   handleRenameModalSubmit: (nextTitle: string) => Promise<void>;
   handleRenameModalClose: () => void;
-  handleRenameModalGenerate: (() => Promise<string | null>) | null;
 }
 
 export function useWorkspaceTabRename(
   input: UseWorkspaceTabRenameInput,
 ): UseWorkspaceTabRenameResult {
   const { client, normalizedServerId, queryClient, terminalsData, terminalsQueryKey } = input;
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [renamingTab, setRenamingTab] = useState<RenamingTabState | null>(null);
-  // COMPAT(agentTitleGenerate): added in v0.6.1, remove gate after 2027-09-01.
-  const supportsAgentTitleGenerate = useSessionStore(
-    (s) => s.sessions[normalizedServerId]?.serverInfo?.features?.agentTitleGenerate === true,
-  );
 
   const handleRenameTab = useCallback(
     (tab: WorkspaceTabDescriptor) => {
@@ -98,37 +88,11 @@ export function useWorkspaceTabRename(
     setRenamingTab(null);
   }, []);
 
-  const handleRenameModalGenerate = useCallback(async (): Promise<string | null> => {
-    if (!renamingTab || renamingTab.kind !== "agent") return null;
-    if (!client) {
-      throw new Error(t("workspace.terminal.hostDisconnected"));
-    }
-    try {
-      const { title } = await client.generateAgentTitle(renamingTab.id, {
-        // The generated title should follow the app's current UI language.
-        language: i18n.language ?? undefined,
-      });
-      return title;
-    } catch (error) {
-      if (error instanceof AgentTitleGenerateTimeoutError) {
-        throw new Error(t("renameModal.generateTimeout"), { cause: error });
-      }
-      if (error instanceof AgentTitleGenerateRejectedError) {
-        throw new Error(t("renameModal.generateRejected"), { cause: error });
-      }
-      throw error;
-    }
-  }, [client, renamingTab, t, i18n.language]);
-
   return {
     renamingTab,
     handleRenameTab,
     handleRenameModalSubmit,
     handleRenameModalClose,
-    handleRenameModalGenerate:
-      supportsAgentTitleGenerate && renamingTab?.kind === "agent"
-        ? handleRenameModalGenerate
-        : null,
   };
 }
 
@@ -136,17 +100,14 @@ export interface WorkspaceTabRenameModalProps {
   renamingTab: RenamingTabState | null;
   onClose: () => void;
   onSubmit: (nextTitle: string) => Promise<void>;
-  onGenerate?: (() => Promise<string | null>) | null;
 }
 
 export function WorkspaceTabRenameModal({
   renamingTab,
   onClose,
   onSubmit,
-  onGenerate,
 }: WorkspaceTabRenameModalProps) {
   const { t } = useTranslation();
-  const toast = useToast();
   const title =
     renamingTab?.kind === "terminal"
       ? t("workspace.tabs.menu.renameTerminal")
@@ -155,10 +116,6 @@ export function WorkspaceTabRenameModal({
   const testID = renamingTab
     ? `workspace-tab-rename-modal-${renamingTab.kind}-${renamingTab.id}`
     : undefined;
-  // Stable so the generate path in the modal isn't recreated every render.
-  const handleGenerated = useCallback(() => {
-    toast.show(t("renameModal.generateSuccess"), { variant: "success" });
-  }, [toast, t]);
   return (
     <AdaptiveRenameModal
       visible={renamingTab !== null}
@@ -168,8 +125,6 @@ export function WorkspaceTabRenameModal({
       maxLength={200}
       onClose={onClose}
       onSubmit={onSubmit}
-      onGenerate={onGenerate ?? undefined}
-      onGenerated={handleGenerated}
       testID={testID}
     />
   );
