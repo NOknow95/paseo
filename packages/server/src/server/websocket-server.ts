@@ -2062,8 +2062,6 @@ export class VoiceAssistantWebSocketServer {
         // COMPAT(workspaceLabels): added in v0.5.0, remove after 2027-08-14.
         ...(this.workspaceLabelService ? { workspaceLabels: true } : {}),
         terminalCollection: true,
-        // COMPAT(agentTitleGenerate): added in v0.6.1, remove gate after 2027-09-01.
-        agentTitleGenerate: true,
         // COMPAT(workspaceSetupRun): added in v0.7.3, remove gate after 2027-09-02.
         workspaceSetupRun: true,
         workspaceSetupObservation: true,
