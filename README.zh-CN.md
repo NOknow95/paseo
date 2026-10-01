@@ -35,10 +35,6 @@
 
 ## 本分支新增功能
 
-### AI 自动生成 tab 标题
-
-一键重命名 agent tab：重命名弹窗里新增 **Auto-generate（自动生成）** 按钮。daemon 从 agent 的对话时间线构建种子并做结构化生成，优先使用 agent 自己的 provider/model，失败时顺着配置的 fallback chain 回退；超时和生成失败都会给出本地化提示。需要支持 `agentTitleGenerate` 的 daemon（v0.6.1+）。
-
 ### 思考内容实时预览
 
 agent 思考时，thinking 徽章不再只是静态的 "Thinking"，而是实时显示模型当前思考内容的尾部，该步骤一结束就恢复为普通标签。长推理步骤不用再干等。

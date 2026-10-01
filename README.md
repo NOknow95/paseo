@@ -35,10 +35,6 @@
 
 ## Features in this branch
 
-### AI-generated tab titles
-
-Rename any agent tab in one click: the rename modal has an **Auto-generate** button. The daemon builds a seed from the agent's conversation timeline and runs structured generation, trying the agent's own provider/model first, then falling back through your configured chain. Timeouts and failed generations surface as localized messages. Requires a daemon that exposes `agentTitleGenerate` (v0.6.1+).
-
 ### Live thinking preview
 
 While an agent is thinking, the thinking badge no longer just reads "Thinking" — it streams the tail of what the model is currently working through, reverting to a plain label when the step finishes. No more waiting blind on long reasoning steps.
