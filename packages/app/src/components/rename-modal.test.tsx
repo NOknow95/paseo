@@ -192,8 +192,6 @@ interface RenderOptions {
   submitLabel?: string;
   onClose?: () => void;
   onSubmit?: (value: string) => Promise<void> | void;
-  onGenerate?: () => Promise<string | null>;
-  onGenerated?: () => void;
   validate?: (value: string) => string | null;
   maxLength?: number;
 }
@@ -207,8 +205,6 @@ function renderModal(options: RenderOptions = {}): void {
     submitLabel,
     onClose = vi.fn(),
     onSubmit = vi.fn(),
-    onGenerate,
-    onGenerated,
     validate,
     maxLength,
   } = options;
@@ -222,8 +218,6 @@ function renderModal(options: RenderOptions = {}): void {
         submitLabel={submitLabel}
         onClose={onClose}
         onSubmit={onSubmit}
-        onGenerate={onGenerate}
-        onGenerated={onGenerated}
         validate={validate}
         maxLength={maxLength}
         testID="rename-modal"
@@ -242,10 +236,6 @@ function querySubmit(): HTMLButtonElement | null {
 
 function queryCancel(): HTMLButtonElement | null {
   return document.querySelector<HTMLButtonElement>('[data-testid="rename-modal-cancel"]');
-}
-
-function queryGenerate(): HTMLButtonElement | null {
-  return document.querySelector<HTMLButtonElement>('[data-testid="rename-modal-generate"]');
 }
 
 function queryError(): HTMLElement | null {
@@ -393,188 +383,5 @@ describe("RenameModal", () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(queryError()?.textContent).toContain("Server said no");
     expect(querySubmit()?.disabled).toBe(false);
-  });
-});
-
-describe("RenameModal auto-generate", () => {
-  it("does not render the generate button when onGenerate is not provided", () => {
-    renderModal({ initialValue: "main" });
-    expect(queryGenerate()).toBeNull();
-  });
-
-  it("fills the input with the generated value and enables submit", async () => {
-    const onGenerate = vi.fn(async () => "Fix login flow");
-    renderModal({ initialValue: "", onGenerate });
-
-    expect(queryGenerate()).not.toBeNull();
-    expect(querySubmit()?.disabled).toBe(true);
-
-    click(queryGenerate());
-    await flush();
-
-    expect(onGenerate).toHaveBeenCalledTimes(1);
-    expect(queryInput()?.value).toBe("Fix login flow");
-    expect(querySubmit()?.disabled).toBe(false);
-  });
-
-  it("fires onGenerated when a generated title is applied to the input", async () => {
-    const onGenerate = vi.fn(async () => "Fix login flow");
-    const onGenerated = vi.fn();
-    renderModal({ initialValue: "", onGenerate, onGenerated });
-
-    click(queryGenerate());
-    await flush();
-
-    expect(queryInput()?.value).toBe("Fix login flow");
-    expect(onGenerated).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not fire onGenerated when generation yields nothing", async () => {
-    const onGenerate = vi.fn(async () => null);
-    const onGenerated = vi.fn();
-    renderModal({ initialValue: "main", onGenerate, onGenerated });
-
-    click(queryGenerate());
-    await flush();
-
-    expect(onGenerated).not.toHaveBeenCalled();
-  });
-
-  it("does not fire onGenerated when generation fails", async () => {
-    const onGenerate = vi.fn(async () => {
-      throw new Error("Generation unavailable");
-    });
-    const onGenerated = vi.fn();
-    renderModal({ initialValue: "main", onGenerate, onGenerated });
-
-    click(queryGenerate());
-    await flush();
-
-    expect(onGenerated).not.toHaveBeenCalled();
-  });
-
-  it("ignores empty generation results", async () => {
-    const onGenerate = vi.fn(async () => null);
-    renderModal({ initialValue: "main", onGenerate });
-
-    click(queryGenerate());
-    await flush();
-
-    expect(queryInput()?.value).toBe("main");
-    expect(queryError()).toBeNull();
-  });
-
-  it("surfaces generation errors inline and keeps the modal open", async () => {
-    const onClose = vi.fn();
-    const onGenerate = vi.fn(async () => {
-      throw new Error("Generation unavailable");
-    });
-    renderModal({ initialValue: "main", onClose, onGenerate });
-
-    click(queryGenerate());
-    await flush();
-
-    expect(onClose).not.toHaveBeenCalled();
-    expect(queryError()?.textContent).toContain("Generation unavailable");
-    expect(queryGenerate()?.disabled).toBe(false);
-  });
-
-  it("disables the generate button while generation is pending", async () => {
-    let resolveGenerate: (value: string) => void = () => {};
-    const onGenerate = vi.fn(
-      () =>
-        new Promise<string>((resolve) => {
-          resolveGenerate = resolve;
-        }),
-    );
-    const onClose = vi.fn();
-    renderModal({ initialValue: "main", onGenerate, onClose });
-
-    click(queryGenerate());
-    await flush();
-
-    expect(queryGenerate()?.disabled).toBe(true);
-    // Closing while generation is pending is allowed.
-    expect(queryCancel()?.disabled).toBe(false);
-
-    click(queryCancel());
-    expect(onClose).toHaveBeenCalledTimes(1);
-
-    act(() => {
-      resolveGenerate("Generated title");
-    });
-    await flush();
-
-    expect(queryGenerate()?.disabled).toBe(false);
-    expect(queryInput()?.value).toBe("Generated title");
-  });
-
-  it("discards a stale generation result after the modal is closed and reopened", async () => {
-    let resolveGenerate: (value: string) => void = () => {};
-    const onGenerate = vi.fn(
-      () =>
-        new Promise<string>((resolve) => {
-          resolveGenerate = resolve;
-        }),
-    );
-    renderModal({ initialValue: "main", onGenerate });
-
-    click(queryGenerate());
-    await flush();
-
-    // Close and reopen the modal, which bumps the generation epoch.
-    renderModal({ visible: false, initialValue: "main", onGenerate });
-    renderModal({ visible: true, initialValue: "main", onGenerate });
-
-    await act(async () => {
-      resolveGenerate("Generated title");
-    });
-    await flush();
-
-    // The late result from the previous open is discarded.
-    expect(queryInput()?.value).toBe("main");
-  });
-});
-
-describe("RenameModal epoch race", () => {
-  it("late generation must not clear a new generation's loading state", async () => {
-    const resolvers: Array<(v: string) => void> = [];
-    const onGenerate = vi.fn(
-      () =>
-        new Promise<string>((resolve) => {
-          resolvers.push(resolve);
-        }),
-    );
-    const onClose = vi.fn();
-    renderModal({ initialValue: "main", onGenerate, onClose });
-
-    // First generation starts.
-    click(queryGenerate());
-    await flush();
-    expect(queryGenerate()?.disabled).toBe(true);
-
-    // Close and reopen (epoch bumps, loading resets).
-    renderModal({ visible: false, initialValue: "main", onGenerate, onClose });
-    renderModal({ visible: true, initialValue: "main", onGenerate, onClose });
-
-    // Second generation starts.
-    click(queryGenerate());
-    await flush();
-    expect(queryGenerate()?.disabled).toBe(true);
-
-    // The FIRST generation resolves late — it must not clear the second one's loading.
-    await act(async () => {
-      resolvers[0]("Old title");
-    });
-    await flush();
-    expect(queryGenerate()?.disabled).toBe(true);
-
-    // Second finishes normally.
-    await act(async () => {
-      resolvers[1]("New title");
-    });
-    await flush();
-    expect(queryInput()?.value).toBe("New title");
-    expect(queryGenerate()?.disabled).toBe(false);
   });
 });
