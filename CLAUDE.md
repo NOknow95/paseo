@@ -115,6 +115,20 @@ When Mo requests an APK, use `npm run build:apk:arm64` for an ARM64 build: write
 
 See [docs/development.md](docs/development.md) for full setup, build sync requirements, and debugging.
 
+## Branches
+
+This checkout is a fork: `origin` is `git@github.com:NOknow95/paseo.git`, `upstream` is the official
+`git@github.com:getpaseo/paseo.git`.
+
+`main` mirrors the official repo. It carries no local work, tracks `upstream/main`, and moves only
+by fast-forward: `git fetch upstream && git branch -f main upstream/main`. Push it to `origin/main`
+afterwards so the fork matches the official history. Never commit on `main` — a local commit
+there breaks the fast-forward and has to be moved to `dev`.
+
+`dev` is the DIY branch and the working checkout. Every local change lives here, rebased onto the
+refreshed `main` with the `sync-upstream` skill. Rebasing rewrites history, so publish it with
+`git push --force-with-lease origin dev`.
+
 ## Release branches
 
 Merge normal PRs into `main`, including while a beta soaks or a release is being finalized. Each
