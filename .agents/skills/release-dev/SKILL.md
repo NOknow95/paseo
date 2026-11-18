@@ -60,15 +60,15 @@ Skip this step entirely on Linux and Windows — only the macOS dmg target needs
 
 Expected size is 20675673 bytes; the direct download can stall and needs a retry. Clean up the tarball after the build; the extracted `dmgbuild` script and `python/` directory persist for reuse.
 
-### 4. Ask about clearing last build's output
+### 4. Clear last build's output
 
-Before building, ask the user whether to clear the previous build's output under `packages/desktop/release/`:
+Clear the previous build's output before packaging. Don't ask:
 
 ```bash
-rm -rf packages/desktop/release/*   # proposed command; run only if the user confirms
+rm -rf packages/desktop/release/*
 ```
 
-This directory is git-ignored build output (DMG, zip, blockmap, `latest-mac.yml`, `mac-arm64/`). Default is not to clear unless the user says so — a fresh build overwrites same-name artifacts anyway, but leave no stale files from an older version behind if they want a clean slate.
+This directory is git-ignored build output (DMG, zip, blockmap, `latest-mac.yml`, `mac-arm64/`). Clearing it keeps the folder to this run's artifacts: `npm run build:desktop` leaves a release-channel DMG next to the dev ones, and installing that file replaces the released `Paseo.app`. The glob leaves `.DS_Store` behind, which is harmless.
 
 ### 5. Build
 

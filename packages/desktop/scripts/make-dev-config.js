@@ -100,6 +100,17 @@ yml = replaceExactly(
   "disable hardened runtime",
 );
 yml = replaceExactly(yml, "notarize: true", "notarize: false", "disable notarize");
+// Force ad-hoc signing. electron-builder used to sign ad-hoc on its own when no
+// identity was found; 26.18 skips signing entirely instead, which leaves the
+// untouched Electron linker signature on the bundle and fails `codesign
+// --verify`. Identity "-" is the documented ad-hoc path; hardenedRuntime must
+// stay false or library validation refuses to load Electron Framework.
+yml = replaceExactly(
+  yml,
+  "  hardenedRuntime: false",
+  '  identity: "-"\n  hardenedRuntime: false',
+  "ad-hoc identity",
+);
 
 fs.writeFileSync(OUT_YML, yml);
 
